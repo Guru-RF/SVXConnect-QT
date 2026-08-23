@@ -59,7 +59,6 @@ public:
     void setCurrentShortcut(const QString &human);
 
     static PttBinding keyboardBinding();
-    static PttBinding deviceBinding();
     static bool       holdMode();
 
 signals:

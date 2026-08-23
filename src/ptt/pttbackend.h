@@ -25,18 +25,22 @@
  *            6.3.6 with xdg-desktop-portal 1.20.3 — emits both Activated and
  *            Deactivated. The default.
  *
- *   evdev    Reads /dev/input/event* directly. The only backend that can see
- *            physical key state, so the only one that can do a chord with a
- *            LOCK key such as CapsLock, and the only one that works with a
- *            foot switch or a USB PTT dongle. Costs a udev rule.
- *
- *   x11      xcb_grab_key. Only on a real X11 session; on Wayland an XWayland
- *            grab sees only keys already routed to XWayland, which fails
- *            silently rather than loudly.
- *
  *   fifo     The core's existing control FIFO, driven by a compositor key
  *            binding. Already works with no code at all; it is listed so the
  *            interface can report on it and the settings page can explain it.
+ *
+ * An evdev backend reading /dev/input/event* directly was written and then
+ * REMOVED. It was the only way to bind a chord using CapsLock, because at that
+ * layer CapsLock is just KEY_CAPSLOCK going down and up rather than a lock
+ * state the shortcut layer discards — but it cost read access to every key the
+ * device produces, which for a keyboard is every keystroke the user types.
+ *
+ * That turned out to be solving the problem at the wrong layer. The desktop
+ * already offers it: the xkb option `caps:hyper` ("Make Caps Lock an
+ * additional Hyper", in KDE's Keyboard → Key Bindings settings) turns CapsLock
+ * into a real modifier, Hyper and Super share Mod4, and CapsLock+Enter is then
+ * simply LOGO+Return — an ordinary portal binding, with no elevated permission
+ * and no udev rule, that benefits every application rather than this one.
  *
  * A MEASURED WARNING ABOUT preferred_trigger
  * ------------------------------------------
@@ -65,31 +69,14 @@
 
 /* What the user bound.
  *
- * Keyboard bindings are expressed in the freedesktop Shortcuts syntax the
- * portal takes: modifiers CTRL / ALT / SHIFT / LOGO joined with '+', then an
- * xkbcommon keysym name without its XKB_KEY_ prefix — "CTRL+SHIFT+t".
- *
- * Device bindings name an /dev/input node and up to two Linux key codes. Two,
- * because a chord is the only way to use an otherwise-useful key as PTT
- * without losing it: CapsLock+Enter transmits, Enter alone still means Enter.
+ * Expressed in the freedesktop Shortcuts syntax the portal takes: modifiers
+ * CTRL / ALT / SHIFT / LOGO joined with '+', then an xkbcommon keysym name
+ * without its XKB_KEY_ prefix — "LOGO+Return", "CTRL+SHIFT+t".
  */
 struct PttBinding {
-    enum Kind { Keyboard, Device };
+    QString trigger;
 
-    Kind    kind = Keyboard;
-
-    QString trigger;              /* Keyboard: "CTRL+SHIFT+t"           */
-
-    QString devicePath;           /* Device: prefer /dev/input/by-id/... */
-    int     holdCode = 0;         /* Device: modifier held, 0 = none     */
-    int     keyCode  = 0;         /* Device: the key that keys the radio */
-    bool    grab     = false;     /* Device: EVIOCGRAB. Pedals only.     */
-
-    bool isValid() const
-    {
-        return kind == Keyboard ? !trigger.isEmpty()
-                                : (!devicePath.isEmpty() && keyCode != 0);
-    }
+    bool isValid() const { return !trigger.isEmpty(); }
 };
 
 /* Whether a backend can be used here, and if not, what the user must do. */
@@ -109,7 +96,7 @@ public:
     using QObject::QObject;
     ~PttBackend() override = default;
 
-    virtual QString id() const = 0;            /* "portal" | "evdev" | "fifo" */
+    virtual QString id() const = 0;            /* "portal" | "fifo" */
     virtual QString displayName() const = 0;
 
     /* Cheap, side-effect-free, and safe to call repeatedly — the settings
@@ -128,8 +115,8 @@ signals:
     void pressed();
     void released();
 
-    /* The backend can no longer guarantee it will see a release: the portal
-     * session closed, the device was unplugged, the grab was stolen.
+    /* The backend can no longer guarantee it will see a release — the portal
+     * session closed, for instance.
      * PttManager unkeys immediately on this — a transmitter that cannot be
      * stopped by its own button must not stay keyed. */
     void lost(const QString &why);

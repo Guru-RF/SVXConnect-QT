@@ -3,11 +3,11 @@
  *
  * Owns the PTT backends and turns their edges into app_ptt().
  *
- * Two backends may run at once, deliberately: a keyboard binding through the
- * portal AND a hardware binding through evdev, because a foot switch and a
- * hotkey are not alternatives — an operator uses whichever hand is free. They
- * are reference-counted, so releasing one while the other is still held does
- * not drop the carrier mid-word.
+ * Presses are reference-counted rather than boolean, so that a second source
+ * releasing while a first is still held does not drop the carrier mid-word.
+ * Only the portal backend exists today; the counting is what makes adding
+ * another (a foot switch, say) a change of one file rather than of this
+ * class's logic.
  *
  * THE SAFETY RULES, WHICH ARE THE POINT OF THIS CLASS
  * ---------------------------------------------------
@@ -47,10 +47,9 @@ public:
     void setMode(Mode m) { m_mode = m; }
     Mode mode() const    { return m_mode; }
 
-    /* Start the keyboard binding (portal) and/or the hardware binding (evdev).
-     * An invalid binding stops that backend rather than erroring. */
+    /* Start the keyboard binding. An invalid binding stops the backend rather
+     * than erroring. */
     void applyKeyboardBinding(const PttBinding &b);
-    void applyDeviceBinding(const PttBinding &b);
 
     /* Unkey now, whatever the reason. Safe to call when not transmitting. */
     void forceUnkey(const char *why);

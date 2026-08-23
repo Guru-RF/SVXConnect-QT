@@ -130,25 +130,6 @@ target_link_libraries(svxconnect-qt PRIVATE
     Qt6::Svg)
 
 # ---------------------------------------------------------------------------
-# Optional: libevdev, for the hardware PTT backend (foot switch, USB PTT
-# dongle). Absent it, the portal / X11 / FIFO backends still work — see
-# docs/PLAN.md §4. This is a genuine option, not a hidden requirement.
-# ---------------------------------------------------------------------------
-option(SVX_WITH_EVDEV "Build the evdev hardware PTT backend" ON)
-if(SVX_WITH_EVDEV)
-    pkg_check_modules(EVDEV IMPORTED_TARGET libevdev)
-    if(EVDEV_FOUND)
-        target_compile_definitions(svxconnect-qt PRIVATE SVX_HAVE_EVDEV)
-        target_sources(svxconnect-qt PRIVATE
-            src/ptt/evdevbackend.cpp src/ptt/evdevbackend.h)
-        target_link_libraries(svxconnect-qt PRIVATE PkgConfig::EVDEV)
-        message(STATUS "PTT: evdev backend enabled (libevdev ${EVDEV_VERSION})")
-    else()
-        message(STATUS "PTT: libevdev not found — hardware PTT backend disabled")
-    endif()
-endif()
-
-# ---------------------------------------------------------------------------
 # Tests
 #
 # Plain executables rather than QtTest: the properties worth checking here are

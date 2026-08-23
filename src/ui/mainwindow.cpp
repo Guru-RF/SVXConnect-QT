@@ -610,10 +610,6 @@ void MainWindow::applyPttBindings()
     m_pttManager->setMode(PreferencesDialog::holdMode() ? PttManager::Mode::Hold
                                                  : PttManager::Mode::Toggle);
     m_pttManager->applyKeyboardBinding(PreferencesDialog::keyboardBinding());
-
-    const PttBinding dev = PreferencesDialog::deviceBinding();
-    if (dev.isValid())
-        m_pttManager->applyDeviceBinding(dev);
 }
 
 

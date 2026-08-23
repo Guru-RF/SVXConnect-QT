@@ -1406,6 +1406,39 @@ Not a macOS tab. It exists because Linux has settings macOS does not.
 
 This is the feature the macOS app could not ship (App Store guideline 2.4.5 flagged `NSEvent.addGlobalMonitorForEvents`). On Linux the restriction does not exist, and `pttKeyCode`/`pttModifierFlags` are already dead keys in the Swift settings waiting for a home.
 
+### 4.0 What shipped, and what was removed
+
+The four-layer design below was implemented and then **cut back to two**, after
+M4 was built and tested against a live desktop. What ships is the **portal**
+backend plus the **control FIFO**; the evdev and X11 backends are not in the
+binary. The rest of §4 is kept because its findings are real and were expensive
+to establish, but read it as history where it describes evdev.
+
+**evdev was written, worked, and was deleted.** It was the only layer that could
+bind a chord using CapsLock: at the evdev layer CapsLock is just KEY_CAPSLOCK
+going down and up, rather than a lock state the shortcut layer discards. The
+cost was read access to every key the device produces — for a keyboard, every
+keystroke the user types — which is the wrong trade to make inside a radio
+client.
+
+It was also the wrong LAYER. The desktop already solves it: the xkb option
+`caps:hyper` ("Make Caps Lock an additional Hyper", under KDE's
+Keyboard → Key Bindings) turns CapsLock into a real modifier. Hyper and Super
+share Mod4, verified with `xmodmap -pm`, so CapsLock+Enter is then simply
+`LOGO+Return` — an ordinary portal binding with no elevated permission, no udev
+rule and no polkit helper, which additionally makes CapsLock useful as a
+modifier in every other application. Confirmed working end to end by the repo
+owner.
+
+Consequences elsewhere in this document: the `libevdev-dev` build dependency,
+the `SVX_WITH_EVDEV` option, `data/udev/`, `data/polkit/`, the learn-mode UI and
+the `install-ptt-rule` helper are all unnecessary and are not built. §6.2's
+`Build-Depends` drops `libevdev-dev`.
+
+X11's `xcb_grab_key` was never implemented: the portal covers X11 sessions too,
+and the `DISPLAY`-is-set-on-Wayland trap documented in §4.3 made it a liability
+for no gain.
+
 ### 4.1 The layered design — four backends, one interface
 
 | Layer | Backend | Gives release? | Works when unfocused | Setup cost |
@@ -1924,7 +1957,7 @@ Build-Depends: debhelper-compat (= 13),
                cmake (>= 3.22), ninja-build, pkgconf | pkg-config,
                qt6-base-dev, qt6-base-dev-tools, qt6-svg-dev, libgl-dev,
                libssl-dev, libopus-dev,
-               libevdev-dev, libxkbcommon-dev,
+               libxkbcommon-dev,
                libncursesw5-dev | libncurses-dev
 
 Package: svxconnect
@@ -1979,7 +2012,6 @@ override_dh_auto_configure:
 	dh_auto_configure -- \
 	    -GNinja \
 	    -DSVX_BUILD_CLI=ON \
-	    -DSVX_WITH_EVDEV=ON \
 	    -DCLI_DIR=$(CURDIR)/third_party/svxconnect-cli
 
 override_dh_auto_test:

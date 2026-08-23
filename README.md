@@ -38,13 +38,9 @@ The CLI's README explains why a terminal cannot do hold-to-talk: it delivers
 *characters*, not key events, so there is no key-release to hang it on. A
 desktop can, and this is the reason the project exists.
 
-Four backends, tried in order, behind one interface:
-
 | Backend | Key release | Works unfocused | Setup |
 |---|---|---|---|
 | **XDG desktop portal** (`org.freedesktop.portal.GlobalShortcuts`) | yes | yes, Wayland and X11 | none |
-| **evdev** — foot switch, USB PTT dongle | yes | yes, even at a TTY | one scoped udev rule — *built, not yet exposed in the interface* |
-| **X11 key grab** (`xcb_grab_key`) | yes | yes, on real X11 | none |
 | **Control FIFO** — compositor binding | yes, if the compositor sends both edges | yes | edit compositor config |
 
 The default is `LOGO+Return`, which the desktop renders as **Meta+Return**. Set
@@ -76,7 +72,7 @@ a missed release means an unattended transmitter.
 ```sh
 sudo apt install build-essential cmake ninja-build pkg-config \
      qt6-base-dev qt6-base-dev-tools qt6-svg-dev \
-     libssl-dev libopus-dev libevdev-dev
+     libssl-dev libopus-dev
 
 git clone --recurse-submodules https://github.com/Guru-RF/SVXConnect-Debian
 cd SVXConnect-Debian

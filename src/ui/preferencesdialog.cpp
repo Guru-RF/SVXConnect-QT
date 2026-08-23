@@ -4,9 +4,6 @@
 #include "ui/preferencesdialog.h"
 #include "core/devlist.h"
 #include "ptt/portalbackend.h"
-#ifdef SVX_HAVE_EVDEV
-#  include "ptt/evdevbackend.h"
-#endif
 #include <QSettings>
 #include <QClipboard>
 #include <QGuiApplication>
@@ -436,19 +433,6 @@ QWidget *PreferencesDialog::buildPttTab()
 
     form->addRow(kb);
 
-    /* The input-device (evdev) backend is deliberately NOT offered here.
-     *
-     * It is the only way to use CapsLock in a chord — at that layer CapsLock
-     * is just KEY_CAPSLOCK going down and up — but it costs read access to
-     * every key the device produces, which for a keyboard is every keystroke
-     * you type. That is the wrong trade to make inside a radio client, and it
-     * is the wrong LAYER to solve it at: remapping CapsLock into a real
-     * modifier belongs to the desktop, where it benefits every application at
-     * once. See docs/PTT.md.
-     *
-     * The backend itself still builds and PttManager will drive it, so a
-     * future release can expose it without re-plumbing anything. */
-
     /* ---- the fallback that always works ---- */
     auto *fifo = new QGroupBox(tr("Scripting and compositor bindings"), page);
     auto *fifoForm = new QVBoxLayout(fifo);
@@ -519,10 +503,6 @@ QWidget *PreferencesDialog::buildGeneralTab()
 namespace {
 constexpr char kPttMode[]   = "ptt/mode";
 constexpr char kPttTrigger[]= "ptt/trigger";
-constexpr char kPttDevice[] = "ptt/devicePath";
-constexpr char kPttHold[]   = "ptt/holdCode";
-constexpr char kPttKey[]    = "ptt/keyCode";
-constexpr char kPttGrab[]   = "ptt/grab";
 }
 
 bool PreferencesDialog::holdMode()
@@ -535,7 +515,6 @@ PttBinding PreferencesDialog::keyboardBinding()
 {
     QSettings s;
     PttBinding b;
-    b.kind    = PttBinding::Keyboard;
     /* Default LOGO+Return — Meta+Enter.
      *
      * Chosen because it composes with the xkb option `caps:super` ("Make Caps
@@ -548,18 +527,6 @@ PttBinding PreferencesDialog::keyboardBinding()
      * LOGO is the freedesktop Shortcuts spelling; the portal renders it back
      * as "Meta+Return". SUPER is NOT accepted — tested, it binds nothing. */
     b.trigger = s.value(QLatin1String(kPttTrigger), QStringLiteral("LOGO+Return")).toString();
-    return b;
-}
-
-PttBinding PreferencesDialog::deviceBinding()
-{
-    QSettings s;
-    PttBinding b;
-    b.kind       = PttBinding::Device;
-    b.devicePath = s.value(QLatin1String(kPttDevice)).toString();
-    b.holdCode   = s.value(QLatin1String(kPttHold), 0).toInt();
-    b.keyCode    = s.value(QLatin1String(kPttKey),  0).toInt();
-    b.grab       = s.value(QLatin1String(kPttGrab), false).toBool();
     return b;
 }
 
@@ -625,9 +592,6 @@ void PreferencesDialog::refreshPttStatus()
     PortalBackend portal;
     render(m_pttPortalStatus, portal.probe());
 
-    /* The evdev backend is built but not exposed — see buildPttTab(). Its
-     * status is therefore not shown either; there is nothing the user can act
-     * on here. */
 }
 
 void PreferencesDialog::setCurrentShortcut(const QString &human)

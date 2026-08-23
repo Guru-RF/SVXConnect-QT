@@ -3,24 +3,13 @@
  */
 #include "ptt/pttmanager.h"
 #include "ptt/portalbackend.h"
-#ifdef SVX_HAVE_EVDEV
-#  include "ptt/evdevbackend.h"
-#endif
 
 PttManager::PttManager(svx_app *app, QObject *parent)
     : QObject(parent), m_app(app)
 {
-    /* Order is preference order, and it is also the order the settings table
-     * lists them in: the one needing no permission first. */
     auto *portal = new PortalBackend(this);
     m_backends.append(portal);
     wire(portal);
-
-#ifdef SVX_HAVE_EVDEV
-    auto *evdev = new EvdevBackend(this);
-    m_backends.append(evdev);
-    wire(evdev);
-#endif
 }
 
 PttManager::~PttManager()
@@ -85,20 +74,6 @@ void PttManager::applyKeyboardBinding(const PttBinding &binding)
 
     if (!portal->start(binding))
         log_warn("ptt: the keyboard binding could not be started");
-}
-
-void PttManager::applyDeviceBinding(const PttBinding &binding)
-{
-    PttBackend *evdev = backend(QStringLiteral("evdev"));
-    if (!evdev)
-        return;
-
-    evdev->stop();
-    if (!binding.isValid())
-        return;
-
-    if (!evdev->start(binding))
-        log_warn("ptt: the hardware binding could not be started");
 }
 
 void PttManager::onPressed(PttBackend *b)

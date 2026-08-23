@@ -132,8 +132,8 @@ PttAvailability PortalBackend::probe() const
         a.reason = tr("Your desktop does not provide the global-shortcuts portal. "
                       "wlroots compositors such as sway, labwc and Hyprland have no "
                       "backend for it.");
-        a.instructions = tr("Bind a key in your compositor to the control FIFO instead, "
-                            "or use a USB foot switch.");
+        a.instructions = tr("Bind a key in your compositor to the control FIFO instead — "
+                            "see the scripting section below.");
         return a;
     }
 
@@ -177,7 +177,7 @@ bool PortalBackend::hasDesktopFile()
 
 bool PortalBackend::start(const PttBinding &binding)
 {
-    if (binding.kind != PttBinding::Keyboard || !binding.isValid())
+    if (!binding.isValid())
         return false;
 
     stop();
