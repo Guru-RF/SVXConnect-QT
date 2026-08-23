@@ -1,0 +1,13 @@
+[Desktop Entry]
+Type=Application
+Name=SVXConnect
+GenericName=SvxLink Reflector Client
+Comment=Talk on SvxLink reflectors
+Exec=svxconnect-qt %u
+Icon=SVXConnect
+Terminal=false
+Categories=Network;HamRadio;AudioVideo;
+Keywords=ham;radio;amateur;svxlink;reflector;dmr;repeater;
+StartupNotify=true
+StartupWMClass=svxconnect-qt
+MimeType=x-scheme-handler/svxconnect;

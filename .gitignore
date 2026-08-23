@@ -1,0 +1,16 @@
+build/
+build-*/
+.cache/
+compile_commands.json
+*.user
+*.autosave
+.qt/
+CMakeLists.txt.user*
+packaging/apt-repo/dists/
+packaging/apt-repo/pool/
+packaging/apt-repo/db/
+*.deb
+*.buildinfo
+*.changes
+*.AppImage
+AppDir/
