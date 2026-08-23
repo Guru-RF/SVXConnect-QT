@@ -1,0 +1,31 @@
+The vendored C core
+===================
+
+SVXConnect-Qt compiles the SVXConnect-CLI core (reflector protocol, mTLS,
+AES-GCM, Opus, jitter buffer, talkgroup manager, control FIFO, run lock, status
+export) into a static library and wraps it in Qt. In git that core is a
+submodule at third_party/svxconnect-cli.
+
+A git submodule does NOT survive dpkg-source: it records a gitlink, not files,
+so a source package built from a plain `git archive` or a `debian/` checkout
+contains an empty directory and the build fails on the CMake guard in
+CMakeLists.txt. Launchpad and most autobuilders never fetch submodules either.
+
+The core is therefore VENDORED into the .orig tarball. Regenerate it with:
+
+    packaging/make-orig-tarball.sh
+
+which exports both trees at their committed revisions and writes
+../svxconnect-qt_<version>.orig.tar.xz. debian/rules then points CLI_DIR at the
+in-tree copy.
+
+The vendored core is covered by its own stanza in debian/copyright, together
+with the miniaudio header it in turn vendors.
+
+Why the core is static, not a shared library
+--------------------------------------------
+It is not a stable ABI and is not intended to be one — its headers use _Atomic
+and are consumed through a hand-written C++-clean shim (src/core/svxcore.h)
+whose prototypes are checked against upstream at build time by
+tools/shim_check.c. Publishing it as a shared library would freeze an interface
+that upstream deliberately keeps free to change.

@@ -8,6 +8,30 @@
 
 ## Decisions already made
 
+### D-4 — the enhanced-reflector feed and the map are CUT, not deferred
+
+**The WebSocket feed (M6) and the map (M7) will not be built.** Not "beyond v1"
+— dropped. Everything in this document describing `net/reflectorfeed`,
+`net/mapinfofetcher`, the `ui/map/` tree, the Reflector activity section, the
+Map preferences tab, node coordinates, clustering, spiderfy, the camera, tile
+providers and their API keys is now **reference material only**: it records what
+the macOS app does and what porting it would involve, for anyone who revisits
+the decision.
+
+Consequences that simplify the rest of the plan:
+
+* The Activity panel is permanently Local + Recent, both fed from the core's
+  talkgroup manager. The "fall back to Recent when the feed is down" gating
+  question disappears.
+* §5.6 and Q4 (tile-provider terms, API keys as a distribution blocker) are
+  moot. Nothing in this application talks to a tile server or a geocoder.
+* Qt6::WebSockets is not linked. The Qt module allowlist shrinks to Core, Gui,
+  Widgets, Network, DBus and Svg.
+* QRZ enrichment (Q2) stays dropped, and now permanently: its only consumer
+  was the feed-driven session list.
+
+
+
 These three are settled by the repo owner. **Do not re-litigate them; implement them.**
 
 ### D-1. Copyright and credits (settles §8 Q16, which was previously flagged blocking)

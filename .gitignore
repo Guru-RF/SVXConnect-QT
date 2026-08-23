@@ -14,3 +14,19 @@ packaging/apt-repo/db/
 *.changes
 *.AppImage
 AppDir/
+
+# Debian packaging build products
+obj-*/
+debian/.debhelper/
+debian/files
+debian/*.substvars
+debian/*.debhelper.log
+debian/svxconnect-qt/
+debian/svxconnect-qt-dbgsym/
+debian/tmp/
+debian/debhelper-build-stamp
+
+# The assembled apt repository. Build output, not source: regenerate with
+# packaging/publish-apt.sh. Keeping .deb files in git bloats it permanently and
+# they are reproducible from a tag.
+repo/

@@ -1,0 +1,107 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: SVXConnect-Qt
+Upstream-Contact: Joeri Van Dooren <ure@on6ure.be>
+Source: https://github.com/Guru-RF/SVXConnect-Debian
+Comment:
+ SVXConnect-Qt links the Qt toolkit dynamically under the GNU Lesser General
+ Public License version 3. Qt is a dependency satisfied by the distribution's
+ own packages and is not conveyed by this package, which is LGPL-3.0 section
+ 4d1; the full texts are at /usr/share/common-licenses/LGPL-3 and
+ /usr/share/common-licenses/GPL-3, and both are needed because the LGPL is
+ written as additional permissions on top of the GPL. Only LGPL-licensed Qt
+ modules are used — Qt Charts, Qt Graphs, Qt Data Visualization, Qt WebEngine
+ and several others are GPL-3.0-only in the open-source edition, and linking
+ one would make this binary GPLv3 while this file said Expat. That is enforced
+ at configure time by cmake/LicenceGuard.cmake and again against the linked
+ binary by tools/licence_guard.sh, which debian/rules runs during the build.
+ .
+ The full third-party notice, including the LGPL relink statement required by
+ section 4, is installed as
+ /usr/share/doc/svxconnect-qt/THIRD-PARTY-NOTICES.
+ .
+ The reflector protocol, TLS, AES-GCM and Opus layers originate in the
+ copyright holder's own prior C work. No code from the upstream SvxLink project
+ (GPL-2.0) is used.
+
+Files: *
+Copyright: 2026 Diëlectricum BV
+License: Expat
+
+Files: debian/*
+Copyright: 2026 Diëlectricum BV
+License: Expat
+
+Files: third_party/svxconnect-cli/*
+Copyright: 2026 Diëlectricum BV
+License: Expat
+Comment:
+ The SVXConnect-CLI core, vendored into the source package and compiled into
+ this binary as a static library. It is a submodule in git; submodules do not
+ survive dpkg-source, so it ships in the .orig tarball. See
+ debian/README.source.
+
+Files: third_party/svxconnect-cli/third_party/miniaudio.h
+Copyright: 2026 David Reid
+License: Unlicense or MIT-0
+Comment:
+ miniaudio is dual licensed, public domain (Unlicense) or MIT-0 at the user's
+ option. This package takes it under MIT-0.
+ .
+ miniaudio does not link the system audio libraries: it dlopen()s
+ libasound.so.2 and libpulse.so.0 at runtime. Neither is a build dependency and
+ neither is distributed here. That is also why dpkg-shlibdeps cannot detect
+ them, and why debian/control names libasound2 by hand — without it the package
+ installs cleanly on a minimal system and then has no audio at all.
+
+Files: data/hicolor/*/apps/SVXConnect.png data/SVXConnect.png
+Copyright: 2026 Diëlectricum BV
+License: Expat
+Comment:
+ The application icon, rendered from the artwork used by the macOS SVXConnect
+ application.
+
+License: Expat
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights
+ to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ copies of the Software, and to permit persons to whom the Software is
+ furnished to do so, subject to the following conditions:
+ .
+ The above copyright notice and this permission notice shall be included in all
+ copies or substantial portions of the Software.
+ .
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ SOFTWARE.
+
+License: Unlicense or MIT-0
+ ALTERNATIVE 1 - Public Domain (www.unlicense.org)
+ .
+ This is free and unencumbered software released into the public domain.
+ Anyone is free to copy, modify, publish, use, compile, sell, or distribute
+ this software, either in source code form or as a compiled binary, for any
+ purpose, commercial or non-commercial, and by any means.
+ .
+ ALTERNATIVE 2 - MIT No Attribution
+ .
+ Copyright 2026 David Reid
+ .
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights
+ to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ copies of the Software, and to permit persons to whom the Software is
+ furnished to do so.
+ .
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ SOFTWARE.

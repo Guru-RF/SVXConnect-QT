@@ -1,0 +1,42 @@
+Source: svxconnect-qt
+Section: hamradio
+Priority: optional
+Maintainer: Joeri Van Dooren <ure@on6ure.be>
+Build-Depends: debhelper-compat (= 13),
+               cmake,
+               ninja-build,
+               pkgconf,
+               qt6-base-dev,
+               qt6-base-dev-tools,
+               qt6-svg-dev,
+               libgl-dev,
+               libssl-dev,
+               libopus-dev
+Standards-Version: 4.7.0
+Homepage: https://svxconnect.app
+Vcs-Git: https://github.com/Guru-RF/SVXConnect-Debian.git
+Vcs-Browser: https://github.com/Guru-RF/SVXConnect-Debian
+Rules-Requires-Root: no
+
+Package: svxconnect-qt
+Architecture: any
+Depends: ${shlibs:Depends},
+         ${misc:Depends},
+         svxconnect,
+         libasound2t64 | libasound2
+Recommends: pipewire-pulse | pulseaudio | pipewire,
+            xdg-desktop-portal
+Suggests: xdg-desktop-portal-kde | xdg-desktop-portal-gnome
+Description: desktop client for SvxLink reflectors
+ A Qt desktop client for SvxLink reflectors speaking protocol v3 — mutual TLS,
+ AES-128-GCM encrypted Opus audio over UDP. Monitor several talkgroups at once,
+ see who is talking on which, switch by priority or by hand, and transmit.
+ .
+ Provides a global push-to-talk shortcut with a genuine key release, using the
+ XDG desktop portal, so it works while the window is unfocused and on both
+ Wayland and X11 without any elevated permission.
+ .
+ It shares one identity with the svxconnect terminal client: the same
+ configuration file, the same client certificate and a shared run lock, so
+ whichever of the two is running holds the reflector connection and the other
+ refuses to start rather than fighting over it.

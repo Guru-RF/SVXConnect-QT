@@ -11,6 +11,16 @@ function(svx_resolve_version OUTVAR)
     set(_v "${PROJECT_VERSION}")
     set(_src "project()")
 
+    # A distribution package pins the version it is shipping. Without this the
+    # binary reports `git describe` — including "-dirty" when the packaging
+    # directory is uncommitted — which is wrong in an About box and wrong in a
+    # bug report. debian/rules passes DEB_VERSION_UPSTREAM.
+    if(DEFINED SVXCONNECT_VERSION_OVERRIDE AND NOT SVXCONNECT_VERSION_OVERRIDE STREQUAL "")
+        set(${OUTVAR} "${SVXCONNECT_VERSION_OVERRIDE}" PARENT_SCOPE)
+        message(STATUS "svxconnect-qt version: ${SVXCONNECT_VERSION_OVERRIDE}  (pinned by the packaging)")
+        return()
+    endif()
+
     find_package(Git QUIET)
     if(GIT_FOUND AND EXISTS "${CMAKE_SOURCE_DIR}/.git")
         execute_process(

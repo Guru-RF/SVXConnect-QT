@@ -1,0 +1,91 @@
+.TH SVXCONNECT-QT 1 "August 2026" "svxconnect-qt" "User Commands"
+.SH NAME
+svxconnect\-qt \- desktop client for SvxLink reflectors
+.SH SYNOPSIS
+.B svxconnect\-qt
+.RI [ options ]
+.RI [ URL ]
+.SH DESCRIPTION
+.B svxconnect\-qt
+connects to a SvxLink reflector over mutual TLS and carries AES\-128\-GCM
+encrypted Opus audio over UDP. It monitors several talkgroups at once, shows who
+is talking on which, switches between them by priority or by hand, and
+transmits.
+.PP
+It shares one identity with
+.BR svxconnect (1):
+the same configuration file, the same client certificate and a shared run lock.
+Only one of the two may hold the reflector connection at a time; the other
+refuses to start and names the process in the way.
+.PP
+Enrol once with
+.B "svxconnect \-\-enroll"
+before first use.
+.SH OPTIONS
+.TP
+.B \-c \fIfile\fR, \fB\-\-config \fIfile\fR
+Use this configuration file instead of the default.
+.TP
+.B \-\-help
+Show a usage summary and exit.
+.TP
+.B \-\-version
+Show the version and exit.
+.SH PUSH-TO-TALK
+Hold the on\-screen button to transmit, or press
+.B Space
+to toggle;
+.B Escape
+always stops.
+.PP
+A global shortcut is registered with the desktop through the XDG global\-
+shortcuts portal, so it works while the window is unfocused, on both Wayland and
+X11, with no elevated permission. It defaults to
+.BR Meta+Return .
+Change it in the desktop's own keyboard settings, where SVXConnect appears as a
+shortcut component; the application follows whatever is set there.
+.PP
+To use CapsLock as the modifier, first make it a real one \(em on KDE Plasma,
+System Settings, Keyboard, Key Bindings, Caps Lock behavior, "Make Caps Lock an
+additional Hyper". CapsLock+Enter is then exactly the default shortcut.
+.PP
+The shortcut belongs to the running process, so closing the window hides
+.B svxconnect\-qt
+to the system tray rather than quitting. Quit from the tray icon.
+.PP
+Transmission stops automatically after
+.I tx_timeout_sec
+seconds, 120 by default, so a stuck key cannot leave the transmitter on.
+.SH FILES
+.TP
+.I ~/.config/svxconnect/svxconnect.conf
+Configuration, shared with
+.BR svxconnect (1).
+Editable from Preferences, or by hand \(em comments and layout are preserved.
+.TP
+.I ~/.config/svxconnect/pki/
+Client key and certificate.
+.TP
+.I ~/.config/SVXConnect/SVXConnect.conf
+Settings belonging only to the desktop client: window geometry and the
+push\-to\-talk mode.
+.TP
+.I ~/.local/state/svxconnect/ctl
+Control FIFO. Write
+.B "ptt on"
+or
+.B "ptt off"
+to it from a script, a foot switch or a compositor key binding.
+.SH ENVIRONMENT
+.TP
+.B SVX_WINDOW_ONLY
+If set, open the window without starting the reflector core. For working on the
+interface on a machine with no certificate.
+.SH SEE ALSO
+.BR svxconnect (1)
+.PP
+Full documentation at
+.UR https://svxconnect.app
+.UE .
+.SH AUTHOR
+Written by Joeri Van Dooren, ON6URE.

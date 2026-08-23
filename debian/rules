@@ -1,0 +1,28 @@
+#!/usr/bin/make -f
+
+export DEB_BUILD_MAINT_OPTIONS = hardening=+all
+
+include /usr/share/dpkg/pkg-info.mk
+
+# The C core is vendored into the source package (see debian/README.source):
+# git submodules do not survive dpkg-source, so CLI_DIR points at the copy that
+# ships inside the tarball rather than at an uninitialised submodule.
+%:
+	dh $@ --buildsystem=cmake+ninja
+
+override_dh_auto_configure:
+	dh_auto_configure -- \
+	    -DCLI_DIR=$(CURDIR)/third_party/svxconnect-cli \
+	    -DSVXCONNECT_VERSION_OVERRIDE=$(DEB_VERSION_UPSTREAM)
+
+# configstore (config round-trip) and talkercall (callsign SSID handling).
+override_dh_auto_test:
+	dh_auto_test
+
+# Refuse to ship a binary that linked a GPL-3.0-only Qt module. The CMake-time
+# allowlist only sees the component list it is handed; this looks at what the
+# binary actually links, which is what the licence depends on.
+override_dh_auto_install:
+	dh_auto_install
+	tools/licence_guard.sh obj-*/svxconnect-qt || \
+	    tools/licence_guard.sh debian/svxconnect-qt/usr/bin/svxconnect-qt
