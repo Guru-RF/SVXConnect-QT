@@ -1,5 +1,5 @@
 /* SPDX-License-Identifier: MIT
- * SVXConnect-Debian — Copyright (c) 2026 Diëlectricum BV
+ * SVXConnect-Qt — Copyright (c) 2026 Diëlectricum BV
  *
  * Opening svxconnect.conf in the user's text editor.
  *

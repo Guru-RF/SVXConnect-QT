@@ -1,5 +1,5 @@
 /* SPDX-License-Identifier: MIT
- * SVXConnect-Debian — Copyright (c) 2026 Diëlectricum BV
+ * SVXConnect-Qt — Copyright (c) 2026 Diëlectricum BV
  *
  * The 200 px control column: which talkgroup you are on, the lock, the
  * talkgroup list, the level meters and the output volume.

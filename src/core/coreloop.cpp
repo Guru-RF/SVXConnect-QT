@@ -1,5 +1,5 @@
 /* SPDX-License-Identifier: MIT
- * SVXConnect-Debian — Copyright (c) 2026 Diëlectricum BV
+ * SVXConnect-Qt — Copyright (c) 2026 Diëlectricum BV
  *
  * See coreloop.h for the design and the three failure modes it avoids.
  */

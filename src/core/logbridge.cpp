@@ -1,5 +1,5 @@
 /* SPDX-License-Identifier: MIT
- * SVXConnect-Debian — Copyright (c) 2026 Diëlectricum BV
+ * SVXConnect-Qt — Copyright (c) 2026 Diëlectricum BV
  *
  * See logbridge.h for why this exists and what the sink contract really is.
  *

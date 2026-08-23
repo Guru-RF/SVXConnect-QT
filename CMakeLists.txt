@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: MIT
-# SVXConnect-Debian — Copyright (c) 2026 Diëlectricum BV
+# SVXConnect-Qt — Copyright (c) 2026 Diëlectricum BV
 #
 # A Qt 6 desktop client for SvxLink v3 reflectors, wrapping the SVXConnect-CLI
 # core. See docs/PLAN.md for the architecture and the milestone plan.

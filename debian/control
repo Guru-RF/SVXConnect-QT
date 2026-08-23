@@ -14,8 +14,8 @@ Build-Depends: debhelper-compat (= 13),
                libopus-dev
 Standards-Version: 4.7.0
 Homepage: https://svxconnect.app
-Vcs-Git: https://github.com/Guru-RF/SVXConnect-Debian.git
-Vcs-Browser: https://github.com/Guru-RF/SVXConnect-Debian
+Vcs-Git: https://github.com/Guru-RF/SVXConnect-QT.git
+Vcs-Browser: https://github.com/Guru-RF/SVXConnect-QT
 Rules-Requires-Root: no
 
 Package: svxconnect-qt

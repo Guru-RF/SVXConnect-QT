@@ -1,6 +1,6 @@
 #!/bin/sh
 # SPDX-License-Identifier: MIT
-# SVXConnect-Debian — Copyright (c) 2026 Diëlectricum BV
+# SVXConnect-Qt — Copyright (c) 2026 Diëlectricum BV
 #
 # Assemble an apt repository under repo/debian from the .deb files sitting in
 # the parent directory (where dpkg-buildpackage leaves them).

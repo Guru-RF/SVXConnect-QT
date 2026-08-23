@@ -1,6 +1,6 @@
 #!/bin/sh
 # SPDX-License-Identifier: MIT
-# SVXConnect-Debian — Copyright (c) 2026 Diëlectricum BV
+# SVXConnect-Qt — Copyright (c) 2026 Diëlectricum BV
 #
 # Fails if the built binary links a GPL-3.0-only Qt module.
 #

@@ -1,7 +1,7 @@
 Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
 Upstream-Name: SVXConnect-Qt
 Upstream-Contact: Joeri Van Dooren <ure@on6ure.be>
-Source: https://github.com/Guru-RF/SVXConnect-Debian
+Source: https://github.com/Guru-RF/SVXConnect-QT
 Comment:
  SVXConnect-Qt links the Qt toolkit dynamically under the GNU Lesser General
  Public License version 3. Qt is a dependency satisfied by the distribution's

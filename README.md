@@ -1,4 +1,4 @@
-# SVXConnect-Debian
+# SVXConnect-Qt
 
 A **Qt 6 desktop client** for **SvxLink reflectors** (protocol v3 — mTLS,
 AES-GCM, Opus), for **Debian and Ubuntu**. It is the desktop sibling of
@@ -74,8 +74,8 @@ sudo apt install build-essential cmake ninja-build pkg-config \
      qt6-base-dev qt6-base-dev-tools qt6-svg-dev \
      libssl-dev libopus-dev
 
-git clone --recurse-submodules https://github.com/Guru-RF/SVXConnect-Debian
-cd SVXConnect-Debian
+git clone --recurse-submodules https://github.com/Guru-RF/SVXConnect-QT
+cd SVXConnect-Qt
 cmake -B build -G Ninja
 cmake --build build
 ```

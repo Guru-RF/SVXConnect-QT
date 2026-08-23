@@ -1,7 +1,7 @@
-# SVXConnect-Debian — Definitive Implementation Plan
+# SVXConnect-Qt — Definitive Implementation Plan
 
 **Target:** a Qt 6 / C++ desktop client for SvxLink v3 reflectors on Debian & Ubuntu, a full clone of SVXConnect-OSX plus a real global PTT hotkey.
-**Repo:** [`/home/ure/Git/Guru-RF/SVXConnect-Debian`](/home/ure/Git/Guru-RF/SVXConnect-Debian) (M0 and M1 are built and running in the working tree; `main` still has no commits — everything below is uncommitted).
+**Repo:** [`/home/ure/Git/Guru-RF/SVXConnect-QT`](/home/ure/Git/Guru-RF/SVXConnect-QT) (M0 and M1 are built and running in the working tree; `main` still has no commits — everything below is uncommitted).
 **Licence:** MIT (Debian DEP-5 name: `Expat`).
 
 ---
@@ -763,7 +763,7 @@ Because it silently breaks the wire protocol and nothing catches it:
 Files marked `[b1]` are Beyond v1 — created empty or absent in v1, listed here so the tree does not have to be re-argued at M6.
 
 ```
-SVXConnect-Debian/
+SVXConnect-Qt/
 ├── CMakeLists.txt                     Top level: options, svxcore lib, both app targets, install
 ├── LICENSE                            MIT, Copyright (c) 2026 Diëlectricum BV        (D-1)
 ├── THIRD-PARTY-NOTICES                Qt/LGPL + opus + OpenSSL + miniaudio + icons + SvxLink provenance
@@ -1975,8 +1975,8 @@ Maintainer: Joeri Van Dooren <ure@moreorless.be>
 Rules-Requires-Root: no
 Standards-Version: 4.7.2
 Homepage: https://svxconnect.app
-Vcs-Git: https://github.com/Guru-RF/SVXConnect-Debian.git
-Vcs-Browser: https://github.com/Guru-RF/SVXConnect-Debian
+Vcs-Git: https://github.com/Guru-RF/SVXConnect-QT.git
+Vcs-Browser: https://github.com/Guru-RF/SVXConnect-QT
 Build-Depends: debhelper-compat (= 13),
                cmake (>= 3.22), ninja-build, pkgconf | pkg-config,
                qt6-base-dev, qt6-base-dev-tools, qt6-svg-dev, libgl-dev,

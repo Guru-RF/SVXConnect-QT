@@ -1,9 +1,9 @@
 # SPDX-License-Identifier: MIT
-# SVXConnect-Debian — Copyright (c) 2026 Diëlectricum BV
+# SVXConnect-Qt — Copyright (c) 2026 Diëlectricum BV
 #
 # Keeps this project MIT-licensable.
 #
-# SVXConnect-Debian's own source is MIT, and it links Qt 6 under the LGPLv3.
+# SVXConnect-Qt's own source is MIT, and it links Qt 6 under the LGPLv3.
 # That combination is legal and needs nothing but dynamic linking and the
 # notices in THIRD-PARTY-NOTICES. But Qt's open-source edition is NOT uniformly
 # LGPL: a handful of modules are GPL-3.0-only, and linking one silently
