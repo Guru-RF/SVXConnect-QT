@@ -2,6 +2,17 @@
 # SPDX-License-Identifier: MIT
 # SVXConnect-Qt — Copyright (c) 2026 Diëlectricum BV
 #
+# SUPERSEDED. The published archive is built by Guru-RF/APT, which collects the
+# .deb files from this repository's GitHub releases along with every other
+# RF.Guru application's, signs them with the archive key, and deploys to
+# https://apt.rf.guru. See .github/workflows/build-deb.yml for this
+# repository's half of that, and Guru-RF/APT REPO.md for the rest.
+#
+# Nothing here uploads anywhere, and it only ever knew about this one package.
+# It is kept because a single-package archive is still the quickest way to prove
+# a locally built .deb installs cleanly; Guru-RF/APT bin/publish.sh does the
+# same job for any directory of .deb files and is the one that is tested.
+#
 # Assemble an apt repository under repo/debian from the .deb files sitting in
 # the parent directory (where dpkg-buildpackage leaves them).
 #
@@ -28,13 +39,13 @@
 #
 # To create a key for this, once:
 #
-#     gpg --quick-generate-key "SVXConnect Repository <ure@on6ure.be>" \
+#     gpg --quick-generate-key "RF.Guru Archive <ure@on6ure.be>" \
 #         default default 5y
 #     gpg --list-secret-keys --keyid-format=long
 #
 # then publish the public half next to the repository so users can fetch it:
 #
-#     gpg --export KEYID > repo/debian/svxconnect-archive-keyring.pgp
+#     gpg --export KEYID > repo/debian/rf-guru-archive-keyring.pgp
 #
 # Note that is the raw binary form, NOT ASCII-armoured: a .pgp file referenced
 # by Signed-By must be a keyring, and `gpg --armor --export` produces something
@@ -99,11 +110,15 @@ done
 
 ARCH_LIST=$(echo "$ARCHES" | tr '\n' ' ' | sed 's/ *$//')
 
-# Valid-Until is deliberately generous but present. Omit it and apt never
-# notices a repository that has silently stopped being updated; set it too
-# short and every user's `apt update` starts failing the moment you go on
-# holiday. Re-run this script (or just re-sign) monthly from CI.
+# Valid-Until: omit it and apt never notices a repository that has silently
+# stopped being updated; set it too short and every user's `apt update` starts
+# failing the moment you go on holiday. 60 days, refreshed monthly.
+#
+# It is set through ValidTime, a DURATION IN SECONDS, and not through the
+# Valid-Until option that apt-ftparchive(1) documents — apt 3.0.3 accepts that
+# one and silently emits nothing, leaving a repository that never expires.
 ( cd "$REPO" && apt-ftparchive \
+    -o "APT::FTPArchive::Release::ValidTime=5184000" \
     -o "APT::FTPArchive::Release::Origin=$ORIGIN" \
     -o "APT::FTPArchive::Release::Label=$LABEL" \
     -o "APT::FTPArchive::Release::Suite=$SUITE" \
@@ -119,7 +134,7 @@ if [ -n "$KEYID" ]; then
         -o "$REPO/dists/$SUITE/Release.gpg" "$REPO/dists/$SUITE/Release"
     gpg --default-key "$KEYID" --clearsign \
         -o "$REPO/dists/$SUITE/InRelease" "$REPO/dists/$SUITE/Release"
-    gpg --export "$KEYID" > "$REPO/svxconnect-archive-keyring.pgp"
+    gpg --export "$KEYID" > "$REPO/rf-guru-archive-keyring.pgp"
     echo "signed with $KEYID"
 else
     echo "NOT SIGNED — apt will refuse this repository."
@@ -130,11 +145,11 @@ fi
 # parse this natively.
 cat > "$REPO/svxconnect.sources" <<EOF
 Types: deb
-URIs: https://apt.svxconnect.app/debian
+URIs: https://apt.rf.guru
 Suites: $SUITE
 Components: $COMPONENT
 Architectures: $ARCH_LIST
-Signed-By: /usr/share/keyrings/svxconnect-archive-keyring.pgp
+Signed-By: /usr/share/keyrings/rf-guru-archive-keyring.pgp
 EOF
 
 # Pin by ORIGIN, not by a package glob. The Debian wiki is explicit that a
@@ -143,11 +158,11 @@ EOF
 # catch-all does.
 cat > "$REPO/svxconnect.pref" <<EOF
 Package: *
-Pin: origin apt.svxconnect.app
+Pin: origin apt.rf.guru
 Pin-Priority: 100
 
 Package: svxconnect svxconnect-qt
-Pin: origin apt.svxconnect.app
+Pin: origin apt.rf.guru
 Pin-Priority: 500
 EOF
 

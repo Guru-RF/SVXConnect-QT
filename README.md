@@ -11,8 +11,9 @@ genuine key-release, that works while the window is unfocused.
 > was pulled forward from M5 because the global shortcut is registered by the
 > running process — closing the window would otherwise disable it silently.
 > Connecting, receiving, transmitting, talkgroup switching, preferences and the
-> global hotkey all work against a live reflector. Not yet built: the enhanced
-> reflector WebSocket feed, the map, and packaging. See
+> global hotkey all work against a live reflector. Debian packaging and the
+> automated builds that feed [apt.rf.guru](https://apt.rf.guru) are in place.
+> Not yet built: the enhanced reflector WebSocket feed and the map. See
 > [docs/PLAN.md](docs/PLAN.md) for the architecture, the full feature-parity
 > matrix against the macOS app, and the open decisions.
 
@@ -67,6 +68,23 @@ plainly, and offers a ready-to-paste compositor snippet. A transmit watchdog
 un-keys on `tx_timeout_sec` (120 s by default) and on any backend loss, because
 a missed release means an unattended transmitter.
 
+## Installing
+
+Debian 13 (trixie) on `amd64` or `arm64`:
+
+```sh
+curl -fsSLO https://apt.rf.guru/rf-guru-archive-keyring.deb
+sudo apt install ./rf-guru-archive-keyring.deb
+sudo apt update
+sudo apt install svxconnect-qt        # pulls in svxconnect
+```
+
+The archive is assembled and signed by
+[Guru-RF/APT](https://github.com/Guru-RF/APT) from the packages this
+repository's [build-deb workflow](.github/workflows/build-deb.yml) attaches to
+each release. It pins itself below Debian's own archives, so it cannot shadow a
+distribution package.
+
 ## Building
 
 ```sh
@@ -112,6 +130,9 @@ SVXConnect-Qt is built with the **Qt toolkit**, © The Qt Company Ltd and
 contributors, used under the **GNU Lesser General Public License version 3**.
 Qt is linked dynamically and unmodified; you may replace the Qt libraries with
 modified versions and relink. Only LGPL Qt modules are used — this is enforced
-at configure time and again against the linked binary in CI, because several Qt
+at configure time by [cmake/LicenceGuard.cmake](cmake/LicenceGuard.cmake), and
+again against the linked binary by [tools/licence_guard.sh](tools/licence_guard.sh),
+which runs during `dh_auto_install` and once more in
+[.github/workflows/build-deb.yml](.github/workflows/build-deb.yml). Several Qt
 modules (Charts, Graphs, WebEngine and others) are GPL-3.0-only and linking one
 would silently make the binary GPLv3.

@@ -1,0 +1,149 @@
+# Build the Debian packages and hand them to apt.rf.guru.
+#
+# This workflow is the application half of the contract documented in
+# Guru-RF/APT REPO.md §2: build in the target suite, stamp the suite onto the
+# version, attach the .deb files to the release, tell the archive to rebuild.
+# The archive repository compiles nothing — everything specific to building
+# THIS application lives here.
+name: build-deb
+
+on:
+  push:
+    tags: ['v*']
+  # Rebuild an existing tag without moving it — e.g. after fixing packaging.
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Existing tag to build and attach to
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # The build must happen INSIDE the suite it targets: a package built
+          # against Ubuntu's Qt and shipped to Debian trixie has the wrong
+          # shlibs dependencies and fails to install. The runner only supplies
+          # the kernel and the architecture; the container supplies the suite.
+          - { suite: trixie, arch: amd64, runner: ubuntu-24.04 }
+          - { suite: trixie, arch: arm64, runner: ubuntu-24.04-arm }
+
+    runs-on: ${{ matrix.runner }}
+    container: debian:${{ matrix.suite }}
+
+    steps:
+      - name: Bootstrap the container
+        run: |
+          apt-get update
+          apt-get install -y --no-install-recommends \
+              ca-certificates git devscripts equivs dpkg-dev lintian xz-utils
+
+      - uses: actions/checkout@v4
+        with:
+          # The C core is a submodule and the build refuses to run without it.
+          submodules: recursive
+          ref: ${{ inputs.tag || github.ref }}
+          path: src
+
+      - name: Trust the checkout
+        run: git config --global --add safe.directory "$GITHUB_WORKSPACE/src"
+
+      - name: Install build dependencies from debian/control
+        working-directory: src
+        run: |
+          # mk-build-deps reads debian/control, so the dependency list here can
+          # never drift from the one the package actually declares.
+          mk-build-deps --install --remove \
+              --tool 'apt-get -y --no-install-recommends' debian/control
+
+      - name: Stamp the suite onto the version
+        working-directory: src
+        env:
+          DEBEMAIL: ure@on6ure.be
+          DEBFULLNAME: Joeri Van Dooren
+        run: |
+          VER=$(dpkg-parsechangelog -S Version)
+          # See Guru-RF/APT REPO.md §2. The suffix routes the package to its
+          # dist, keeps release asset names unique across suites, and sorts so
+          # that upgrading the OS offers the newer build:
+          #   0.1.0-1~bookworm  <  0.1.0-1~trixie  <  0.1.0-1
+          dch --force-bad-version --no-auto-nmu \
+              -v "${VER}~${{ matrix.suite }}" \
+              "Build for ${{ matrix.suite }}."
+          dpkg-parsechangelog -S Version
+
+      - name: Build
+        working-directory: src
+        run: |
+          # Binary-only. The source package needs the vendored .orig tarball
+          # from packaging/make-orig-tarball.sh (git submodules do not survive
+          # dpkg-source — debian/README.source); here the submodule is checked
+          # out, so debian/rules finds the core where it expects it and no
+          # tarball is involved. The archive publishes no deb-src index.
+          dpkg-buildpackage -us -uc -b
+
+      - name: Lintian
+        working-directory: src
+        continue-on-error: true
+        run: lintian --info --display-info ../*.deb || true
+
+      - name: Confirm no GPL-only Qt module was linked
+        working-directory: src
+        run: |
+          # debian/rules already runs this during dh_auto_install; repeating it
+          # against the INSTALLED binary is the check the README promises — the
+          # CMake-time allowlist only sees the component list it was handed,
+          # this sees what the binary actually links.
+          tools/licence_guard.sh debian/svxconnect-qt/usr/bin/svxconnect-qt
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: deb-${{ matrix.suite }}-${{ matrix.arch }}
+          path: '*.deb'
+          if-no-files-found: error
+
+  release:
+    needs: build
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: debs
+          merge-multiple: true
+
+      - name: Attach the packages to the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ inputs.tag || github.ref_name }}
+        run: |
+          ls -la debs
+          gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1 \
+            || gh release create "$TAG" --repo "$GITHUB_REPOSITORY" \
+                 --title "$TAG" --generate-notes
+          # --clobber so re-running a build replaces the assets instead of
+          # failing on the second upload.
+          gh release upload "$TAG" --repo "$GITHUB_REPOSITORY" --clobber debs/*.deb
+
+      - name: Tell apt.rf.guru to rebuild
+        env:
+          # Fine-grained PAT with write access to Guru-RF/APT and nothing else.
+          # The default GITHUB_TOKEN cannot dispatch across repositories.
+          GH_TOKEN: ${{ secrets.APT_DISPATCH_TOKEN }}
+          TAG: ${{ inputs.tag || github.ref_name }}
+        run: |
+          if [ -z "$GH_TOKEN" ]; then
+            echo "::warning::APT_DISPATCH_TOKEN not set — the archive will pick"
+            echo "::warning::this up on its monthly cron instead of immediately."
+            exit 0
+          fi
+          # The payload is informational. The archive rebuilds from its own
+          # manifest and the releases it names, so nothing here is trusted.
+          gh api -X POST /repos/Guru-RF/APT/dispatches \
+            -f event_type=package-released \
+            -f "client_payload[repo]=$GITHUB_REPOSITORY" \
+            -f "client_payload[tag]=$TAG"
